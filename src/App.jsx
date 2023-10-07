@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import Connex from '@vechain/connex'
-// import { Certificate, secp256k1, blake2b256 } from 'thor-devkit'
 import { TokenURIAbi, balanceOf, tokenOfOwnerByIndex } from './components/ABI'
 import './App.css'
+import mino from './assets/minomob.png'
 
 const connex = new Connex({
   node: "https://mainnet.veblocks.net",
@@ -38,13 +38,13 @@ export default function App() {
 
 
   async function fetchNFTs(userWallet) {
-    const VNONS = connex.thor.account(
+    const MINOS = connex.thor.account(
       "0xf4d82631be350c37d92ee816c2bd4d5adf9e6493"
     );
 
-    const balance = VNONS.method(balanceOf);
-    const nftID = VNONS.method(tokenOfOwnerByIndex);
-    const nftURI = VNONS.method(TokenURIAbi);
+    const balance = MINOS.method(balanceOf);
+    const nftID = MINOS.method(tokenOfOwnerByIndex);
+    const nftURI = MINOS.method(TokenURIAbi);
 
     const output = await balance.call(userWallet);
     const balanceValue = output.decoded[0];
@@ -67,7 +67,7 @@ export default function App() {
         const presentImage = await fetch(`https://arweave.net/${imageUrl.substr(5)}`);
         const presentImageURL = presentImage.url;
 
-        images.push(presentImageURL);
+        images.push({ imageUrl: presentImageURL, tokenId: tokenId });
       }
       console.log(images);
       setNftImages(images);
@@ -77,20 +77,26 @@ export default function App() {
   }
 
   return (
-    <div>
+<div>
 
-      <button onClick={handleSigning}>view Minos by signing</button>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-        <h1>View your Mino Mob NFT Collection</h1>
-        {nftImages.map((image, index) => (
-          <img
-            key={index}
-            src={image}
-            alt={`NFT ${index}`}
-            style={{ flex: '1', maxWidth: 'calc(25% - 10px)', height: 'auto', paddingTop: '50px' }}
-          />
-        ))}
-      </div>
+
+<div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+<button onClick={handleSigning}>view Minos by signing</button>
+  <img src={mino}></img>
+  <h1 style={{width: '100%', margin: '0', padding: '0'}}>View OG Minos</h1>
+  
+    {nftImages.map((image, index) => (
+     <div key={index} style={{ flex: '1', maxWidth: 'calc(25% - 10px)' }}>
+    <img
+      key={index}
+      src={image.imageUrl}
+      alt={`NFT ${index}`}
+      style={{ width: '100%', height: 'auto', paddingTop: '50px', minWidth: '250px' }}
+    />
+    <p style={{ textAlign: 'center' }}>Id: {image.tokenId}</p>
     </div>
+  ))}
+</div>
+</div>
   );
 }
