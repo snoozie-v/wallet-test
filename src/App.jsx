@@ -2,7 +2,7 @@ import { useState } from 'react'
 import Connex from '@vechain/connex'
 import { TokenURIAbi, balanceOf, tokenOfOwnerByIndex } from './components/ABI'
 import './App.css'
-import mino from './assets/minomob.png'
+import Header from './components/Header'
 
 const connex = new Connex({
   node: "https://mainnet.veblocks.net",
@@ -24,7 +24,7 @@ export default function App() {
   const [offset, setOffset] = useState(0);
   const [isLoading, setIsLoading] = useState(false); // Loading state
 
-  const limit = 4;
+  const limit = 12;
 
   const handleSigning = async () => {
     setIsLoading(true)
@@ -101,23 +101,10 @@ async function fetchNFTs(userWallet, offset, limit) {
 
 return (
   <div>
-    <div className='header'>
-      <div className='socials'>
-        <div className='social discord'>D</div>
-        <div className='social discord'>I</div>
-        <div className='social x'>X</div>
-      </div>
-      <img className='logo' src={mino}></img>
-      <button className='wallet button' onClick={handleSigning}>
-        view Minos by signing
-      </button>
-      <div className='navMenu'>Nav</div>
-    </div>
+     <Header handleSigning={handleSigning} />
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
       <h1 style={{ width: '100%', margin: '0', padding: '25px' }}>View OG Minos</h1>
-      {isLoading && nftImages.length === 0 ? (
-        <p>Loading...</p>
-      ) : null}
+      
 
       {nftImages && nftImages.length > 0 ? (
         nftImages.map((image, index) => (
@@ -131,6 +118,10 @@ return (
             <p style={{ textAlign: 'center' }}>Id: {image.tokenId}</p>
           </div>
         ))
+      ) : null}
+
+      {isLoading ? (
+        <p>Loading...</p>
       ) : null}
     </div>
     <button onClick={handleLoadMore}>Load More</button>
