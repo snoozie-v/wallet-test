@@ -4,6 +4,7 @@ import { TokenURIAbi, balanceOf, tokenOfOwnerByIndex } from './components/ABI'
 import './App.css'
 import Header from './components/Header'
 
+
 const connex = new Connex({
   node: "https://mainnet.veblocks.net",
   network: "main"
@@ -102,14 +103,15 @@ async function fetchNFTs(userWallet, offset, limit) {
 return (
   <div>
      <Header handleSigning={handleSigning} />
-    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-      <h1 style={{ width: '100%', margin: '0', padding: '25px' }}>View OG Minos</h1>
+    <div className="image-wrapper"style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center',cgap: '10px' }}>
+      <h1 className='image-h1' style={{ width: '100%', margin: '0', padding: '25px' }}>View OG Minos</h1>
       
 
       {nftImages && nftImages.length > 0 ? (
         nftImages.map((image, index) => (
-          <div key={index} style={{ flex: '1', maxWidth: 'calc(25% - 10px)' }}>
+          <div className='images' key={index} style={{ flex: '1', maxWidth: 'calc(25% - 10px)' }}>
             <img
+              className='image'
               key={index}
               src={image.imageUrl}
               alt={`NFT ${index}`}
