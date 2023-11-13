@@ -61,63 +61,75 @@ export default function App() {
     setNftImages(sortedNftImages);
   };
 
-async function fetchNFTs(userWallet, offset, limit) {
-  const MINOS = connex.thor.account("0xf4d82631be350c37d92ee816c2bd4d5adf9e6493");
-
-  const balance = MINOS.method(balanceOf);
-  const nftID = MINOS.method(tokenOfOwnerByIndex);
-  const nftURI = MINOS.method(TokenURIAbi);
-
-  const output = await balance.call(userWallet);
-  const balanceValue = output.decoded[0];
-
-  if (balanceValue > 0) {
-    let images = [];
-
-    // Implement pagination (adjust offset and limit as needed)
-    for (let i = offset; i < Math.min(offset + limit, balanceValue); i++) {
-      const nftIDOutput = await nftID.call(userWallet, i);
-      const tokenId = nftIDOutput.decoded[0];
-
-      const URIOutput = await nftURI.call(tokenId);
-
-      const metadataResponse = await fetch(`https://arweave.net/${URIOutput.decoded[0].substr(5)}`);
-
-      const metadata = await metadataResponse.json();
-
-      const imageUrl = metadata.image;
-      const presentImage = await fetch(`https://arweave.net/${imageUrl.substr(5)}`);
-      const presentImageURL = presentImage.url;
-
-      images.push({ imageUrl: presentImageURL, tokenId: tokenId });
+  async function fetchNFTs(userWallet, offset, limit) {
+    const MINOS = connex.thor.account("0xf4d82631be350c37d92ee816c2bd4d5adf9e6493");
+  
+    const balance = MINOS.method(balanceOf);
+    const nftID = MINOS.method(tokenOfOwnerByIndex);
+    const nftURI = MINOS.method(TokenURIAbi);
+  
+    const output = await balance.call(userWallet);
+    const balanceValue = output.decoded[0];
+  
+    if (balanceValue > 0) {
+      try {
+        let requests = [];
+  
+        for (let i = offset; i < Math.min(offset + limit, balanceValue); i++) {
+          const nftIDOutput = await nftID.call(userWallet, i);
+          console.log(nftIDOutput)
+          const URIOutput = await nftURI.call(nftIDOutput.decoded[0]);
+          console.log(URIOutput)
+          requests.push({ nftIDOutput, URIOutput });
+        }
+  
+        const results = await Promise.all(requests);
+  
+        let images = [];
+  
+        for (let i = 0; i < results.length; i++) {
+          const tokenId = results[i].nftIDOutput.decoded[0];
+          const URIOutput = results[i].URIOutput.decoded[0];
+  
+          const metadataResponse = await fetch(`https://arweave.net/${URIOutput.substr(5)}`);
+          const metadata = await metadataResponse.json();
+  
+          const imageUrl = metadata.image;
+          const presentImage = await fetch(`https://arweave.net/${imageUrl.substr(5)}`);
+          const presentImageURL = presentImage.url;
+  
+          images.push({ imageUrl: presentImageURL, tokenId });
+        }
+  
+        console.log(images);
+        setNftImages(images);
+        return images;
+      } catch (error) {
+        console.error('Error fetching NFTs:', error);
+        return [];
+      }
     }
-
-    console.log(images);
-    setNftImages(images);
-    return images;
+    return [];
   }
-  return [];
-}
 
 
 return (
   <div>
      <Header handleSigning={handleSigning} />
-    <div className="image-wrapper"style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center',cgap: '10px' }}>
-      <h1 className='image-h1' style={{ width: '100%', margin: '0', padding: '25px' }}>View OG Minos</h1>
+    <div className="image-wrapper">
+      
       
 
       {nftImages && nftImages.length > 0 ? (
         nftImages.map((image, index) => (
-          <div className='images' key={index} style={{ flex: '1', maxWidth: 'calc(25% - 10px)' }}>
+          <div className='images' key={index}>
             <img
               className='image'
               key={index}
               src={image.imageUrl}
               alt={`NFT ${index}`}
-              style={{ width: '100%', height: 'auto', paddingTop: '50px', minWidth: '250px' }}
             />
-            <p style={{ textAlign: 'center' }}>Id: {image.tokenId}</p>
+            <p>Id: {image.tokenId}</p>
           </div>
         ))
       ) : null}
@@ -127,7 +139,7 @@ return (
       ) : null}
     </div>
     <button onClick={handleLoadMore}>Load More</button>
-    <button onClick={sortNFTsByTokenID}>Sort by Token ID</button> {/* Add a button to trigger sorting */}
+    <button onClick={sortNFTsByTokenID}>Sort by Token ID</button> 
   </div>
 );
         }

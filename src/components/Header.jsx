@@ -12,15 +12,16 @@ function Header( {handleSigning}) {
           <div className='header'>
       <div className='socials'>
         <div className='social discord'><img src={discord}></img></div>
-        <div className='social discord'><img src={insta}></img></div>
+        <div className='social insta'><img src={insta}></img></div>
         <div className='social x'><img src={xxx}></img></div>
       </div>
       <img className='logo' src={mino}></img>
-      <button className='wallet button' onClick={handleSigning}>
+      <div className='wallet' onClick={handleSigning}>
         <img src={connect} alt="connect to wallet"/>
-      </button>
-      <div className='navMenu'>Nav</div>
+      </div>
+
     </div>
+    <h1 className='image-h1'>View Minos</h1>
     </div>
   )
 }
